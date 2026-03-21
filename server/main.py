@@ -5,6 +5,7 @@ from utils.database import supabase
 from routes.auth import router as auth_router
 from routes.checkins import router as checkins_router
 from routes.usage import router as usage_router
+from routes.scores import router as scores_router
 import os
 
 # Load environment variables
@@ -30,6 +31,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(checkins_router, prefix="/checkins", tags=["Mood Checkins"])
 app.include_router(usage_router, prefix="/usage", tags=["Usage Logs"])
+app.include_router(scores_router, prefix="/scores", tags=["Comparison Scores"])
 
 # Health check route
 @app.get("/")
