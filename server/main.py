@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from utils.database import supabase
 from routes.auth import router as auth_router
+from routes.checkins import router as checkins_router
 import os
 
 # Load environment variables
@@ -26,6 +27,7 @@ app.add_middleware(
 
 # Register routes
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(checkins_router, prefix="/checkins", tags=["Mood Checkins"])
 
 # Health check route
 @app.get("/")
