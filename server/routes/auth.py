@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from utils.database import supabase
 
@@ -30,9 +30,11 @@ def register(user: RegisterUser):
         if response.user:
             return {"message": "Registration successful", "user": response.user.email}
         else:
-            return {"message": "Registration failed", "error": "No user returned"}
+            raise HTTPException(status_code=400, detail="Registration failed: No user returned")
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"message": "Registration failed", "error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 # --- Login ---
@@ -49,7 +51,7 @@ def login(user: LoginUser):
             "user": response.user.email
         }
     except Exception as e:
-        return {"message": "Login failed", "error": str(e)}
+        raise HTTPException(status_code=401, detail=str(e))
 
 
 # --- Logout ---
@@ -59,4 +61,4 @@ def logout():
         supabase.auth.sign_out()
         return {"message": "Logged out successfully"}
     except Exception as e:
-        return {"message": "Logout failed", "error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
