@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../utils/api'
+import { supabase } from '../utils/supabase'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -13,17 +13,17 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      const response = await api.post('/auth/login', form)
-      if (response.data.access_token) {
-        localStorage.setItem('access_token', response.data.access_token)
-        localStorage.setItem('user_email', response.data.user)
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      })
+      if (authError) {
+        setError(authError.message || 'Login failed')
+      } else if (data.session) {
         navigate('/dashboard')
-      } else {
-        setError(response.data.error || 'Login failed')
       }
     } catch (err: any) {
-      const backendError = err.response?.data?.detail || err.response?.data?.error
-      setError(backendError || err.message || 'Something went wrong. Please try again.')
+      setError(err.message || 'Something went wrong. Please try again.')
       console.error('Login error:', err)
     }
     setLoading(false)
@@ -32,21 +32,17 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-blue-50 flex items-center justify-center px-6">
       <div className="bg-white rounded-2xl shadow-sm p-10 w-full max-w-md">
-
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome back</h1>
           <p className="text-gray-500 text-sm">Login to your account to continue</p>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="bg-red-50 text-red-500 text-sm px-4 py-3 rounded-xl mb-6">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="text-gray-600 text-sm font-medium mb-1 block">Email</label>
@@ -79,7 +75,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Register link */}
         <p className="text-center text-gray-500 text-sm mt-6">
           Don't have an account?{' '}
           <span
@@ -89,7 +84,6 @@ export default function Login() {
             Register
           </span>
         </p>
-
       </div>
     </div>
   )

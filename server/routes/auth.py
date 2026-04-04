@@ -36,7 +36,6 @@ def register(user: RegisterUser):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-
 # --- Login ---
 @router.post("/login")
 def login(user: LoginUser):
@@ -48,11 +47,11 @@ def login(user: LoginUser):
         return {
             "message": "Login successful",
             "access_token": response.session.access_token,
-            "user": response.user.email
+            "user": response.user.email,
+            "user_id": str(response.user.id)
         }
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
-
 
 # --- Logout ---
 @router.post("/logout")

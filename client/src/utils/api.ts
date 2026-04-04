@@ -12,10 +12,26 @@ const api = axios.create({
 
 // Automatically attach user ID to every request
 api.interceptors.request.use(async (config) => {
+  // Try Supabase JS session first
   const { data: { session } } = await supabase.auth.getSession()
   if (session?.user?.id) {
     config.headers['user-id'] = session.user.id
+    return config
   }
+
+  // Fallback: decode user_id from JWT in localStorage
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      if (payload.sub) {
+        config.headers['user-id'] = payload.sub
+      }
+    } catch (e) {
+      console.error('Failed to decode token:', e)
+    }
+  }
+
   return config
 })
 
