@@ -1,10 +1,52 @@
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../utils/supabase'
 
 export default function Settings() {
   const navigate = useNavigate()
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
   const [notifications, setNotifications] = useState(true)
   const [dailyReminder, setDailyReminder] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setEmail(user.email || '')
+        setFullName(user.user_metadata?.full_name || '')
+      }
+    }
+    loadUser()
+  }, [])
+
+  const handleSave = async () => {
+    setSaving(true)
+    setMessage('')
+    try {
+      const { error } = await supabase.auth.updateUser({
+        email,
+        data: { full_name: fullName }
+      })
+      if (error) {
+        setMessage('❌ ' + error.message)
+      } else {
+        setMessage('✅ Changes saved successfully!')
+      }
+    } catch (err: any) {
+      setMessage('❌ Something went wrong.')
+    }
+    setSaving(false)
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    localStorage.clear()
+    navigate('/')
+  }
 
   return (
     <div className="min-h-screen bg-blue-50">
@@ -23,24 +65,37 @@ export default function Settings() {
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <h2 className="text-gray-800 font-bold mb-4">Profile</h2>
           <div className="flex flex-col gap-4">
+            {message && (
+              <div className={`text-sm px-4 py-3 rounded-xl ${message.startsWith('✅') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+                {message}
+              </div>
+            )}
             <div>
-              <label className="text-gray-600 text-sm font-medium mb-1 block">Full Name</label>
+              <label htmlFor="fullName" className="text-gray-600 text-sm font-medium mb-1 block">Full Name</label>
               <input
+                id="fullName"
                 type="text"
-                defaultValue="Lewis Wainaina"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400"
               />
             </div>
             <div>
-              <label className="text-gray-600 text-sm font-medium mb-1 block">Email</label>
+              <label htmlFor="email" className="text-gray-600 text-sm font-medium mb-1 block">Email</label>
               <input
+                id="email"
                 type="email"
-                defaultValue="lewis@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400"
               />
             </div>
-            <button className="bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-500 transition">
-              Save Changes
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-500 transition"
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
@@ -56,9 +111,8 @@ export default function Settings() {
               </div>
               <button
                 onClick={() => setNotifications(!notifications)}
+                aria-label="Toggle push notifications"
                 className={`w-12 h-6 rounded-full transition ${notifications ? 'bg-blue-600' : 'bg-gray-300'}`}
-                aria-label={`Push notifications ${notifications ? 'enabled' : 'disabled'}`}
-                aria-pressed={notifications ? 'true' : 'false'}
               >
                 <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform mx-0.5 ${notifications ? 'translate-x-6' : ''}`} />
               </button>
@@ -70,9 +124,8 @@ export default function Settings() {
               </div>
               <button
                 onClick={() => setDailyReminder(!dailyReminder)}
+                aria-label="Toggle daily reminder"
                 className={`w-12 h-6 rounded-full transition ${dailyReminder ? 'bg-blue-600' : 'bg-gray-300'}`}
-                aria-label={`Daily reminder ${dailyReminder ? 'enabled' : 'disabled'}`}
-                aria-pressed={dailyReminder ? 'true' : 'false'}
               >
                 <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform mx-0.5 ${dailyReminder ? 'translate-x-6' : ''}`} />
               </button>
@@ -84,7 +137,7 @@ export default function Settings() {
         <div className="bg-white rounded-2xl shadow-sm p-6">
           <h2 className="text-red-500 font-bold mb-4">Danger Zone</h2>
           <button
-            onClick={() => { localStorage.clear(); navigate('/') }}
+            onClick={handleLogout}
             className="w-full border border-red-400 text-red-500 py-3 rounded-xl font-semibold hover:bg-red-50 transition"
           >
             Logout
