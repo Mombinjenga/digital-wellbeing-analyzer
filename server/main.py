@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from utils.database import supabase
+from utils.database import get_supabase
 from routes.auth import router as auth_router
 from routes.checkins import router as checkins_router
 from routes.usage import router as usage_router
@@ -44,6 +44,7 @@ def root():
 @app.get("/test-db")
 def test_db():
     try:
+        supabase = get_supabase()
         response = supabase.table("profiles").select("*").limit(1).execute()
         return {"message": "Database connected successfully ✅", "data": response.data}
     except Exception as e:

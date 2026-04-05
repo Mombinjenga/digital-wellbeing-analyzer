@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from utils.database import supabase
+from utils.database import get_supabase
 from typing import Optional
 
 router = APIRouter()
@@ -13,6 +13,7 @@ class Insight(BaseModel):
 # --- Create an insight ---
 @router.post("/")
 def create_insight(insight: Insight, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("insights").insert({
             "user_id": user_id,
@@ -26,6 +27,7 @@ def create_insight(insight: Insight, user_id: str = Header(...)):
 # --- Get all insights for a user ---
 @router.get("/")
 def get_insights(user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("insights").select("*").eq("user_id", user_id).order("generated_at", desc=True).execute()
         return {"message": "Insights retrieved ✅", "data": response.data}
@@ -35,6 +37,7 @@ def get_insights(user_id: str = Header(...)):
 # --- Get unread insights ---
 @router.get("/unread")
 def get_unread_insights(user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("insights").select("*").eq("user_id", user_id).eq("is_read", False).order("generated_at", desc=True).execute()
         return {"message": "Unread insights retrieved ✅", "data": response.data}
@@ -44,6 +47,7 @@ def get_unread_insights(user_id: str = Header(...)):
 # --- Mark insight as read ---
 @router.patch("/{insight_id}/read")
 def mark_as_read(insight_id: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("insights").update({"is_read": True}).eq("id", insight_id).eq("user_id", user_id).execute()
         return {"message": "Insight marked as read ✅"}
@@ -53,6 +57,7 @@ def mark_as_read(insight_id: str, user_id: str = Header(...)):
 # --- Delete an insight ---
 @router.delete("/{insight_id}")
 def delete_insight(insight_id: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("insights").delete().eq("id", insight_id).eq("user_id", user_id).execute()
         return {"message": "Insight deleted ✅"}

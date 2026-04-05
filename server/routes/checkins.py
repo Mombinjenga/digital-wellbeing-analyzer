@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from utils.database import supabase
+from utils.database import get_supabase
 from ml.sentiment import analyze_sentiment, detect_comparison, calculate_comparison_index, get_risk_level, get_recommendations
 from typing import Optional
 
@@ -15,6 +15,7 @@ class MoodCheckin(BaseModel):
 # --- Create a check-in ---
 @router.post("/")
 def create_checkin(checkin: MoodCheckin, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         # Run ML analysis on the note
         sentiment = analyze_sentiment(checkin.note)
@@ -72,6 +73,7 @@ def create_checkin(checkin: MoodCheckin, user_id: str = Header(...)):
 # --- Get all check-ins for a user ---
 @router.get("/")
 def get_checkins(user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("mood_checkins").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
         return {"message": "Check-ins retrieved ✅", "data": response.data}
@@ -81,6 +83,7 @@ def get_checkins(user_id: str = Header(...)):
 # --- Get a single check-in ---
 @router.get("/{checkin_id}")
 def get_checkin(checkin_id: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("mood_checkins").select("*").eq("id", checkin_id).eq("user_id", user_id).execute()
         return {"message": "Check-in retrieved ✅", "data": response.data}
@@ -90,6 +93,7 @@ def get_checkin(checkin_id: str, user_id: str = Header(...)):
 # --- Delete a check-in ---
 @router.delete("/{checkin_id}")
 def delete_checkin(checkin_id: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("mood_checkins").delete().eq("id", checkin_id).eq("user_id", user_id).execute()
         return {"message": "Check-in deleted ✅"}

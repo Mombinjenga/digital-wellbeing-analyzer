@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
@@ -25,15 +26,16 @@ export default function Insights() {
     fetchData()
   }, [])
 
-  // Build last 7 days mood trend
   const getLast7Days = () => {
     const days = []
     for (let i = 6; i >= 0; i--) {
       const date = new Date()
       date.setDate(date.getDate() - i)
-      const label = date.toLocaleDateString('en', { weekday: 'short' }).charAt(0)
-      const dateStr = date.toDateString()
-      const dayCheckins = checkins.filter(c => new Date(c.created_at).toDateString() === dateStr)
+      const label = date.toLocaleDateString('en', { weekday: 'short' }).slice(0, 2)
+      const dateStr = date.toLocaleDateString('en-CA')
+      const dayCheckins = checkins.filter(c =>
+        new Date(c.created_at).toLocaleDateString('en-CA') === dateStr
+      )
       const avg = dayCheckins.length > 0
         ? Math.round(dayCheckins.reduce((sum, c) => sum + c.mood_score, 0) / dayCheckins.length)
         : null
@@ -42,7 +44,6 @@ export default function Insights() {
     return days
   }
 
-  // Count check-ins per platform
   const getPlatformUsage = () => {
     const counts: Record<string, number> = {}
     checkins.forEach(c => {
@@ -66,14 +67,19 @@ export default function Insights() {
   const getTimeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime()
     const days = Math.floor(diff / 86400000)
-    if (days === 0) return 'Today'
+    const hours = Math.floor(diff / 3600000)
+    const mins = Math.floor(diff / 60000)
+    if (days > 1) return `${days} days ago`
     if (days === 1) return 'Yesterday'
-    return `${days} days ago`
+    if (hours > 0) return `${hours}h ago`
+    return `${mins}m ago`
   }
 
   const moodDays = getLast7Days()
   const platformUsage = getPlatformUsage()
   const maxPlatformCount = platformUsage[0]?.[1] || 1
+  const maxMood = 10
+  const chartHeight = 160 // px
 
   return (
     <div className="min-h-screen bg-blue-50">
@@ -93,27 +99,33 @@ export default function Insights() {
         ) : (
           <>
             {/* Mood Trend */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-              <h2 className="text-gray-800 font-bold mb-4">Weekly Mood Trend</h2>
-              <div className="flex items-end gap-3 h-32">
-                {moodDays.map((day, i) => (
-                  <div key={i} className="flex flex-col items-center flex-1">
-                    {day.avg !== null ? (
-                      <div
-                        className={`bg-blue-400 rounded-t-lg w-full transition-all h-[${day.avg * 10}%]`}
-                        title={`Mood: ${day.avg}/10`}
-                      />
-                    ) : (
-                      <div className="bg-gray-100 rounded-t-lg w-full h-[10%]" />
-                    )}
-                    <span className="text-xs text-gray-400 mt-1">{day.label}</span>
-                  </div>
-                ))}
-              </div>
-              {checkins.length === 0 && (
-                <p className="text-center text-gray-400 text-sm mt-4">No check-ins yet — start logging to see your trend!</p>
-              )}
-            </div>
+<div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+  <h2 className="text-gray-800 font-bold mb-4">Weekly Mood Trend</h2>
+  {checkins.length === 0 ? (
+    <p className="text-center text-gray-400 text-sm py-10">No check-ins yet — start logging to see your trend!</p>
+  ) : (
+    <div style={{ height: '160px', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', gap: '8px' }}>
+      {moodDays.map((day, i) => (
+        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+          <span style={{ fontSize: '11px', color: '#60a5fa', marginBottom: '2px' }}>
+            {day.avg !== null ? day.avg : ''}
+          </span>
+          <div
+            style={{
+              width: '100%',
+              borderRadius: '4px 4px 0 0',
+              backgroundColor: day.avg !== null ? '#60a5fa' : '#f3f4f6',
+              height: day.avg !== null ? `${(day.avg / 10) * 120}px` : '4px'
+            }}
+          />
+          <span style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
+            {day.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
             {/* Platform Usage */}
             <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
@@ -130,7 +142,8 @@ export default function Insights() {
                       </div>
                       <div className="bg-gray-100 rounded-full h-2">
                         <div
-                          className={`${platformColors[platform] || 'bg-gray-400'} h-2 rounded-full w-[${(count / maxPlatformCount) * 100}%]`}
+                          className={`${platformColors[platform] || 'bg-gray-400'} platform-usage-bar rounded-full`}
+                          style={{ '--usage-width': `${(count / maxPlatformCount) * 100}%` } as React.CSSProperties}
                         />
                       </div>
                     </div>

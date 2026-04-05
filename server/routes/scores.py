@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from utils.database import supabase
+from utils.database import get_supabase
 from typing import Optional
 
 router = APIRouter()
@@ -17,6 +17,7 @@ class ComparisonScore(BaseModel):
 # --- Create a score ---
 @router.post("/")
 def create_score(score: ComparisonScore, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("comparison_scores").insert({
             "user_id": user_id,
@@ -34,6 +35,7 @@ def create_score(score: ComparisonScore, user_id: str = Header(...)):
 # --- Get all scores for a user ---
 @router.get("/")
 def get_scores(user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("comparison_scores").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
         return {"message": "Scores retrieved ✅", "data": response.data}
@@ -43,6 +45,7 @@ def get_scores(user_id: str = Header(...)):
 # --- Get latest score for a user ---
 @router.get("/latest")
 def get_latest_score(user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("comparison_scores").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
         return {"message": "Latest score retrieved ✅", "data": response.data}
@@ -52,6 +55,7 @@ def get_latest_score(user_id: str = Header(...)):
 # --- Get scores by risk level ---
 @router.get("/risk/{risk_level}")
 def get_scores_by_risk(risk_level: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("comparison_scores").select("*").eq("user_id", user_id).eq("risk_level", risk_level).order("created_at", desc=True).execute()
         return {"message": f"{risk_level} risk scores retrieved ✅", "data": response.data}
@@ -61,6 +65,7 @@ def get_scores_by_risk(risk_level: str, user_id: str = Header(...)):
 # --- Delete a score ---
 @router.delete("/{score_id}")
 def delete_score(score_id: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("comparison_scores").delete().eq("id", score_id).eq("user_id", user_id).execute()
         return {"message": "Score deleted ✅"}

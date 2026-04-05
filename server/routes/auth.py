@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from utils.database import supabase
+from utils.database import get_supabase
 
 router = APIRouter()
 
@@ -18,6 +18,7 @@ class LoginUser(BaseModel):
 # --- Register ---
 @router.post("/register")
 def register(user: RegisterUser):
+    supabase = get_supabase()
     try:
         response = supabase.auth.sign_up({
             "email": user.email,
@@ -39,6 +40,7 @@ def register(user: RegisterUser):
 # --- Login ---
 @router.post("/login")
 def login(user: LoginUser):
+    supabase = get_supabase()
     try:
         response = supabase.auth.sign_in_with_password({
             "email": user.email,
@@ -56,6 +58,7 @@ def login(user: LoginUser):
 # --- Logout ---
 @router.post("/logout")
 def logout():
+    supabase = get_supabase()
     try:
         supabase.auth.sign_out()
         return {"message": "Logged out successfully"}

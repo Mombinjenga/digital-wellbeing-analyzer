@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from utils.database import supabase
+from utils.database import get_supabase
 from typing import Optional
 
 router = APIRouter()
@@ -14,6 +14,7 @@ class UsageLog(BaseModel):
 # --- Log usage ---
 @router.post("/")
 def create_usage_log(log: UsageLog, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("usage_logs").insert({
             "user_id": user_id,
@@ -28,6 +29,7 @@ def create_usage_log(log: UsageLog, user_id: str = Header(...)):
 # --- Get all usage logs for a user ---
 @router.get("/")
 def get_usage_logs(user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("usage_logs").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
         return {"message": "Usage logs retrieved ✅", "data": response.data}
@@ -37,6 +39,7 @@ def get_usage_logs(user_id: str = Header(...)):
 # --- Get usage logs by platform ---
 @router.get("/{platform}")
 def get_usage_by_platform(platform: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("usage_logs").select("*").eq("user_id", user_id).eq("platform", platform).order("created_at", desc=True).execute()
         return {"message": f"{platform} usage logs retrieved ✅", "data": response.data}
@@ -46,6 +49,7 @@ def get_usage_by_platform(platform: str, user_id: str = Header(...)):
 # --- Delete a usage log ---
 @router.delete("/{log_id}")
 def delete_usage_log(log_id: str, user_id: str = Header(...)):
+    supabase = get_supabase()
     try:
         response = supabase.table("usage_logs").delete().eq("id", log_id).eq("user_id", user_id).execute()
         return {"message": "Usage log deleted ✅"}
