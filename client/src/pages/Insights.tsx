@@ -49,19 +49,17 @@ export default function Insights() {
     checkins.forEach(c => {
       if (c.platform) counts[c.platform] = (counts[c.platform] || 0) + 1
     })
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5)
   }
 
   const platformColors: Record<string, string> = {
-    Instagram: 'bg-pink-400',
-    TikTok: 'bg-blue-400',
-    Twitter: 'bg-sky-400',
-    YouTube: 'bg-red-400',
-    Facebook: 'bg-indigo-400',
-    Snapchat: 'bg-yellow-400',
-    Other: 'bg-gray-400',
+    Instagram: '#f472b6',
+    TikTok: '#60a5fa',
+    Twitter: '#38bdf8',
+    YouTube: '#f87171',
+    Facebook: '#818cf8',
+    Snapchat: '#facc15',
+    Other: '#9ca3af',
   }
 
   const getTimeAgo = (dateStr: string) => {
@@ -78,8 +76,6 @@ export default function Insights() {
   const moodDays = getLast7Days()
   const platformUsage = getPlatformUsage()
   const maxPlatformCount = platformUsage[0]?.[1] || 1
-  const maxMood = 10
-  const chartHeight = 160 // px
 
   return (
     <div className="min-h-screen bg-blue-50">
@@ -99,33 +95,31 @@ export default function Insights() {
         ) : (
           <>
             {/* Mood Trend */}
-<div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-  <h2 className="text-gray-800 font-bold mb-4">Weekly Mood Trend</h2>
-  {checkins.length === 0 ? (
-    <p className="text-center text-gray-400 text-sm py-10">No check-ins yet — start logging to see your trend!</p>
-  ) : (
-    <div style={{ height: '160px', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', gap: '8px' }}>
-      {moodDays.map((day, i) => (
-        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
-          <span style={{ fontSize: '11px', color: '#60a5fa', marginBottom: '2px' }}>
-            {day.avg !== null ? day.avg : ''}
-          </span>
-          <div
-            style={{
-              width: '100%',
-              borderRadius: '4px 4px 0 0',
-              backgroundColor: day.avg !== null ? '#60a5fa' : '#f3f4f6',
-              height: day.avg !== null ? `${(day.avg / 10) * 120}px` : '4px'
-            }}
-          />
-          <span style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
-            {day.label}
-          </span>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+              <h2 className="text-gray-800 font-bold mb-4">Weekly Mood Trend</h2>
+              {checkins.length === 0 ? (
+                <p className="text-center text-gray-400 text-sm py-10">No check-ins yet — start logging to see your trend!</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end', height: '160px', gap: '8px' }}>
+                  {moodDays.map((day, i) => (
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                      <span style={{ fontSize: '10px', color: '#60a5fa', marginBottom: '2px' }}>
+                        {day.avg ?? ''}
+                      </span>
+                      <div style={{
+                        width: '100%',
+                        borderRadius: '4px 4px 0 0',
+                        backgroundColor: day.avg !== null ? '#60a5fa' : '#e5e7eb',
+                        height: day.avg !== null ? `${(day.avg / 10) * 110}px` : '3px'
+                      }} />
+                      <span style={{ fontSize: '10px', color: '#9ca3af', marginTop: '4px' }}>
+                        {day.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Platform Usage */}
             <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
@@ -141,10 +135,12 @@ export default function Insights() {
                         <span className="text-gray-400">{count} check-in{count > 1 ? 's' : ''}</span>
                       </div>
                       <div className="bg-gray-100 rounded-full h-2">
-                        <div
-                          className={`${platformColors[platform] || 'bg-gray-400'} platform-usage-bar rounded-full`}
-                          style={{ '--usage-width': `${(count / maxPlatformCount) * 100}%` } as React.CSSProperties}
-                        />
+                        <div style={{
+                          height: '8px',
+                          borderRadius: '999px',
+                          backgroundColor: platformColors[platform] || '#9ca3af',
+                          width: `${(count / maxPlatformCount) * 100}%`
+                        }} />
                       </div>
                     </div>
                   ))}
