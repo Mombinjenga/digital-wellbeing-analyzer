@@ -7,6 +7,8 @@ import CheckIn from './pages/CheckIn'
 import Insights from './pages/Insights'
 import Recommendations from './pages/Recommendations'
 import Settings from './pages/Settings'
+import AuthCallback from './pages/AuthCallback'
+import ResetPassword from './pages/ResetPassword'
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
       <Route path="/insights" element={<Insights />} />
       <Route path="/recommendations" element={<Recommendations />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )

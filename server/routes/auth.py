@@ -22,16 +22,16 @@ def register(user: RegisterUser):
     try:
         response = supabase.auth.sign_up({
             "email": user.email,
-            "password": user.password,
-            "options": {
-                "data": {"full_name": user.full_name},
-                "email_redirect_to": None
-            }
+            "password": user.password
         })
+
+        if getattr(response, "error", None):
+            raise HTTPException(status_code=400, detail=str(response.error))
+
         if response.user:
             return {"message": "Registration successful", "user": response.user.email}
-        else:
-            raise HTTPException(status_code=400, detail="Registration failed: No user returned")
+
+        raise HTTPException(status_code=400, detail="Registration failed: No user returned")
     except HTTPException:
         raise
     except Exception as e:

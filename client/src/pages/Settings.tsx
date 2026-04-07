@@ -7,8 +7,6 @@ export default function Settings() {
   const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
-  const [notifications, setNotifications] = useState(true)
-  const [dailyReminder, setDailyReminder] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -97,39 +95,6 @@ export default function Settings() {
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
-          </div>
-        </div>
-
-        {/* Notifications */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <h2 className="text-gray-800 font-bold mb-4">Notifications</h2>
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-gray-700 text-sm font-medium">Push Notifications</p>
-                <p className="text-gray-400 text-xs">Receive alerts about your well-being</p>
-              </div>
-              <button
-                onClick={() => setNotifications(!notifications)}
-                aria-label="Toggle push notifications"
-                className={`w-12 h-6 rounded-full transition ${notifications ? 'bg-blue-600' : 'bg-gray-300'}`}
-              >
-                <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform mx-0.5 ${notifications ? 'translate-x-6' : ''}`} />
-              </button>
-            </div>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-gray-700 text-sm font-medium">Daily Reminder</p>
-                <p className="text-gray-400 text-xs">Remind me to do a mood check-in</p>
-              </div>
-              <button
-                onClick={() => setDailyReminder(!dailyReminder)}
-                aria-label="Toggle daily reminder"
-                className={`w-12 h-6 rounded-full transition ${dailyReminder ? 'bg-blue-600' : 'bg-gray-300'}`}
-              >
-                <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform mx-0.5 ${dailyReminder ? 'translate-x-6' : ''}`} />
-              </button>
-            </div>
           </div>
         </div>
 

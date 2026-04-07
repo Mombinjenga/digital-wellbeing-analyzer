@@ -17,13 +17,15 @@ export default function CheckIn() {
     setError('')
     try {
       const response = await api.post('/checkins/', form)
-      if (response.data.message.includes('successfully')) {
+      if (response.data.message?.includes('successfully')) {
         setResult(response.data.analysis)
       } else {
-        setError(response.data.error)
+        setError(response.data.error || response.data.message || 'Check-in failed. Please try again.')
       }
-    } catch (err) {
-      setError('Something went wrong. Please try again.')
+    } catch (err: any) {
+      const backendError = err.response?.data?.error || err.response?.data?.detail || err.message
+      setError(backendError || 'Something went wrong. Please try again.')
+      console.error('Check-in error:', err)
     }
     setLoading(false)
   }

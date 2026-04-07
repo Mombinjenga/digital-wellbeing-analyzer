@@ -29,7 +29,24 @@ api.interceptors.request.use(async (config) => {
     }
   }
 
+  if (config.url && !config.url.startsWith('/auth')) {
+    console.warn('API request has no user-id header; protected route may fail:', config.url)
+  }
+
   return config
 })
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API error', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    })
+    return Promise.reject(error)
+  }
+)
 
 export default api

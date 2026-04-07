@@ -12,20 +12,12 @@ export default function Landing() {
           <span className="text-blue-600 text-2xl font-bold">WellBeing</span>
           <span className="text-gray-400 text-sm">Analyzer</span>
         </div>
-        <div className="flex gap-4">
-          <button
-            onClick={() => navigate('/login')}
-            className="text-blue-600 font-medium hover:underline"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => navigate('/register')}
-            className="bg-blue-600 text-white px-5 py-2 rounded-full font-medium hover:bg-blue-500 transition"
-          >
-            Get Started
-          </button>
-        </div>
+        <button
+          onClick={() => navigate('/login')}
+          className="bg-blue-600 text-white px-5 py-2 rounded-full font-medium hover:bg-blue-500 transition"
+        >
+          Login
+        </button>
       </nav>
 
       {/* Hero */}
@@ -40,20 +32,12 @@ export default function Landing() {
           Track your emotions, detect comparison triggers, and get personalized 
           recommendations for a healthier digital life.
         </p>
-        <div className="flex gap-4">
-          <button
-            onClick={() => navigate('/register')}
-            className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-500 transition text-lg"
-          >
-            Get Started Free
-          </button>
-          <button
-            onClick={() => navigate('/login')}
-            className="border border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition text-lg"
-          >
-            Login
-          </button>
-        </div>
+        <button
+          onClick={() => navigate('/register')}
+          className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-500 transition text-lg"
+        >
+          Get Started Free
+        </button>
       </div>
 
       {/* Features */}
